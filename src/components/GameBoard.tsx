@@ -6,6 +6,7 @@ import { OperationButton } from "./OperationButton";
 import { ResultDialog } from "./ResultDialog";
 import { Trash2, RotateCcw, Target } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { EmptyCard } from "./EmptyCard";
 
 interface SelectedNumber {
   value: number;
@@ -69,12 +70,15 @@ export function GameBoard({ target, initialNumbers, onReset }: GameBoardProps) {
 
     const numberWithIndex = { value: number, index };
     
-    setGameState(prev => ({
-      ...prev,
-      selectedNumbers: prev.selectedNumbers.some(n => n.index === index)
-        ? prev.selectedNumbers.filter(n => n.index !== index)
-        : [...prev.selectedNumbers, numberWithIndex],
-    }));
+    const newState = {
+      ...gameState,
+      selectedNumbers: gameState.selectedNumbers.some(n => n.index === index)
+        ? gameState.selectedNumbers.filter(n => n.index !== index)
+        : [...gameState.selectedNumbers, numberWithIndex],
+    }
+    setGameState(newState);
+
+    if(gameState.selectedOperation) setTimeout(() => calculateResult(newState), 100)
   };
 
   const handleOperationClick = (operation: string) => {
@@ -82,24 +86,30 @@ export function GameBoard({ target, initialNumbers, onReset }: GameBoardProps) {
       return;
     }
 
-    if (gameState.selectedNumbers.length !== 2) {
-      toast({
-        description: "Please select exactly 2 numbers first",
-        variant: "destructive",
-      });
-      return;
-    }
+    // if (gameState.selectedNumbers.length !== 2) {
+    //   toast({
+    //     description: "Please select exactly 2 numbers first",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
 
-    setGameState(prev => ({ ...prev, selectedOperation: operation }));
+    const newState = {...gameState, selectedOperation: operation}
+    setGameState(newState);
 
     // Immediately calculate when we have 2 numbers and 1 operation
-    setTimeout(() => calculateResult(operation), 100);
+    if(gameState.selectedNumbers.length === 2) calculateResult(newState);
   };
 
-  const calculateResult = (operation: string) => {
-    if (gameState.selectedNumbers.length !== 2) return;
+  const calculateResult = ({
+    selectedNumbers: [num1, num2],
+    selectedOperation: operation
+  } : {
+    selectedNumbers: typeof gameState.selectedNumbers,
+    selectedOperation: string
+  }) => {
+    // if (gameState.selectedNumbers.length !== 2) return;
 
-    const [num1, num2] = gameState.selectedNumbers;
     const larger = Math.max(num1.value, num2.value);
     const smaller = Math.min(num1.value, num2.value);
     let result: number;
@@ -147,9 +157,9 @@ export function GameBoard({ target, initialNumbers, onReset }: GameBoardProps) {
       selectedOperation: null,
     }));
 
-    toast({
-      description: `${num1.value} ${operations.find(op => op.name === operation)?.symbol} ${num2.value} = ${result}`,
-    });
+    // toast({
+    //   description: `${num1.value} ${operations.find(op => op.name === operation)?.symbol} ${num2.value} = ${result}`,
+    // });
   };
 
   const handleDeselect = () => {
@@ -192,7 +202,7 @@ export function GameBoard({ target, initialNumbers, onReset }: GameBoardProps) {
                   onClick={() => handleNumberClick(number, index)}
                   disabled={gameState.gameOver || gameState.selectedNumbers.length === 2 && !gameState.selectedNumbers.some(n => n.index === index)}
                 />
-              ) : null
+              ) : <EmptyCard/>
             )}
           </div>
         </div>
@@ -208,7 +218,7 @@ export function GameBoard({ target, initialNumbers, onReset }: GameBoardProps) {
                 symbol={op.symbol}
                 isSelected={gameState.selectedOperation === op.name}
                 onClick={() => handleOperationClick(op.name)}
-                disabled={gameState.gameOver || gameState.selectedNumbers.length !== 2}
+                disabled={gameState.gameOver || !!gameState.selectedOperation}
               />
             ))}
           </div>
