@@ -13,7 +13,7 @@ interface SelectedNumber {
 }
 
 interface GameState {
-  numbers: number[];
+  numbers: (number | null)[];
   target: number;
   selectedNumbers: SelectedNumber[];
   selectedOperation: string | null;
@@ -54,8 +54,9 @@ export function GameBoard({ target, initialNumbers, onReset }: GameBoardProps) {
       return;
     }
 
-    // Check lose condition
-    if (gameState.numbers.length === 1 && !gameState.numbers.includes(target)) {
+    // Check lose condition - count non-null numbers
+    const activeNumbers = gameState.numbers.filter(n => n !== null);
+    if (activeNumbers.length === 1 && !activeNumbers.includes(target)) {
       setGameState(prev => ({ ...prev, gameOver: true, isWin: false }));
       setShowResult(true);
     }
@@ -128,7 +129,7 @@ export function GameBoard({ target, initialNumbers, onReset }: GameBoardProps) {
         return;
     }
 
-    // Update the numbers array - keep result in first selected number's position
+    // Update the numbers array - set second number to null instead of removing
     const newNumbers = [...gameState.numbers];
     const firstIndex = Math.min(num1.index, num2.index);
     const secondIndex = Math.max(num1.index, num2.index);
@@ -136,8 +137,8 @@ export function GameBoard({ target, initialNumbers, onReset }: GameBoardProps) {
     // Replace first selected number with result
     newNumbers[firstIndex] = result;
     
-    // Remove second selected number
-    newNumbers.splice(secondIndex, 1);
+    // Set second selected number to null
+    newNumbers[secondIndex] = null;
 
     setGameState(prev => ({
       ...prev,
@@ -182,15 +183,17 @@ export function GameBoard({ target, initialNumbers, onReset }: GameBoardProps) {
         <div>
           <h3 className="text-lg font-semibold mb-4 text-center">Numbers</h3>
           <div className="grid grid-cols-3 gap-4 max-w-xs">
-            {gameState.numbers.map((number, index) => (
-              <NumberCard
-                key={`${number}-${index}`}
-                number={number}
-                isSelected={gameState.selectedNumbers.some(n => n.index === index)}
-                onClick={() => handleNumberClick(number, index)}
-                disabled={gameState.gameOver || gameState.selectedNumbers.length === 2 && !gameState.selectedNumbers.some(n => n.index === index)}
-              />
-            ))}
+            {gameState.numbers.map((number, index) => 
+              number !== null ? (
+                <NumberCard
+                  key={`${number}-${index}`}
+                  number={number}
+                  isSelected={gameState.selectedNumbers.some(n => n.index === index)}
+                  onClick={() => handleNumberClick(number, index)}
+                  disabled={gameState.gameOver || gameState.selectedNumbers.length === 2 && !gameState.selectedNumbers.some(n => n.index === index)}
+                />
+              ) : null
+            )}
           </div>
         </div>
 
