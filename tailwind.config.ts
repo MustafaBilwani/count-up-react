@@ -57,6 +57,32 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        game: {
+          primary: "hsl(var(--game-primary))",
+          "primary-glow": "hsl(var(--game-primary-glow))",
+          secondary: "hsl(var(--game-secondary))",
+          accent: "hsl(var(--game-accent))",
+          success: "hsl(var(--game-success))",
+          warning: "hsl(var(--game-warning))",
+          danger: "hsl(var(--game-danger))",
+          surface: "hsl(var(--game-surface))",
+          "surface-hover": "hsl(var(--game-surface-hover))",
+          "surface-selected": "hsl(var(--game-surface-selected))",
+        },
+      },
+      backgroundImage: {
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-card": "var(--gradient-card)",
+        "gradient-selected": "var(--gradient-selected)",
+      },
+      boxShadow: {
+        "game-card": "var(--shadow-card)",
+        "game-selected": "var(--shadow-selected)",
+        "game-hover": "var(--shadow-hover)",
+      },
+      transitionTimingFunction: {
+        "smooth": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "bounce": "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
       },
       borderRadius: {
         lg: "var(--radius)",
