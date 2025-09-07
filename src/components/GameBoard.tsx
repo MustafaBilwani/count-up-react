@@ -128,16 +128,16 @@ export function GameBoard({ target, initialNumbers, onReset }: GameBoardProps) {
         return;
     }
 
-    // Update the numbers array
+    // Update the numbers array - keep result in first selected number's position
     const newNumbers = [...gameState.numbers];
-    const indices = [num1.index, num2.index].sort((a, b) => b - a); // Sort descending to remove from end first
+    const firstIndex = Math.min(num1.index, num2.index);
+    const secondIndex = Math.max(num1.index, num2.index);
     
-    // Remove the two selected numbers
-    newNumbers.splice(indices[0], 1);
-    newNumbers.splice(indices[1], 1);
+    // Replace first selected number with result
+    newNumbers[firstIndex] = result;
     
-    // Add the result
-    newNumbers.push(result);
+    // Remove second selected number
+    newNumbers.splice(secondIndex, 1);
 
     setGameState(prev => ({
       ...prev,
